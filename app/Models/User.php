@@ -224,9 +224,9 @@ class User extends Authenticatable
                 }
             }
 
-            $handle = fopen(public_path().'/project/schedule.data','w+');
-            fwrite($handle,$today);
-            fclose($handle);
+            // $handle = fopen(public_path().'/project/schedule.data','w+');
+            // fwrite($handle,$today);
+            // fclose($handle);
 
         }
     }

@@ -14,7 +14,7 @@ class HTTPSConnection {
             if($gs->is_secure == 1) {
                 if (!$request->secure()) {
 
-                    return redirect()->secure($request->getRequestUri());
+                   // return redirect()->secure($request->getRequestUri());
                 }
             }
 

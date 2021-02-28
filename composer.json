@@ -21,7 +21,9 @@
         "mollie/laravel-mollie": "2.0",
         "paypal/rest-api-sdk-php": "^1.14",
         "razorpay/razorpay": "2.*",
-        "yajra/laravel-datatables-oracle": "^8.13"
+        "yajra/laravel-datatables-oracle": "^8.13",
+        "tymon/jwt-auth": "1.0.0-rc.3"
+
     },
     "require-dev": {
         "filp/whoops": "~2.0",

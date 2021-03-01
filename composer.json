@@ -18,12 +18,12 @@
         "laravel/framework": "5.5.*",
         "laravel/socialite": "^3.1",
         "laravel/tinker": "~1.0",
+        "lcobucci/jwt": "3.3.3",
         "mollie/laravel-mollie": "2.0",
         "paypal/rest-api-sdk-php": "^1.14",
         "razorpay/razorpay": "2.*",
-        "yajra/laravel-datatables-oracle": "^8.13",
-        "tymon/jwt-auth": "1.0.0-rc.3"
-
+        "tymon/jwt-auth": "1.0.0-rc.3",
+        "yajra/laravel-datatables-oracle": "^8.13"
     },
     "require-dev": {
         "filp/whoops": "~2.0",

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Api\Product;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Subcategory;
-use App\Models\Generalsetting;
+use App\Models\Rating;
 use Illuminate\Database\QueryException;
 use Validator;
 use Exception;
@@ -16,20 +17,20 @@ use Auth;
 
 class ProductController extends Controller
 {
-
-    /* Create a new AuthController instance.
-     *
-     * @return void
+    /**
+     * ProductController constructor.
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['categories']]);
+        $this->middleware('auth:api', ['except' => []]);
     }
 
 
-    /*
-    Show Products
-    */
+    /**
+     * Show Products
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function products(Request $request)
     {
 
@@ -108,9 +109,11 @@ class ProductController extends Controller
 
     }
 
-    /*
-    Show Products
-    */
+    /**
+     * Show single product
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function single_product(Request $request)
     {
 
@@ -160,10 +163,98 @@ class ProductController extends Controller
 
     }
 
+    /**
+     * Average Ratings of Single Product
+    * 100% calculation
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ratings(Request $request)
+    {
+
+        try{
+            if (!$request->has('product_id') ) {
+
+                return response()->json([
+
+                    'status' => 'error',
+                    'message' => 'product_id Parameter missing',
+                    'code' => 201
+                ]);
+            }
+
+            $param = $request->all();
+            $products = Rating::ratings($param['product_id']);
+
+            return response()->json([
+
+                'status' => 'success',
+                'message' => 'Data Fetched',
+                'code' => 200,
+                'data' => $products
+            ]);
+            
+                            
+        }catch(QueryException  $ex){
+        
+            return response()->json([
+
+                    'status' => 'error',
+                    'message' => $ex->getMessage(),
+                    'code' => 503,
+            ]);
+        }
+
+    }
 
     /**
-    Categories
-    */
+     * Ratings of Single Product
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function rating(Request $request)
+    {
+
+        try{
+            if (!$request->has('product_id') ) {
+
+                return response()->json([
+
+                    'status' => 'error',
+                    'message' => 'product_id Parameter missing',
+                    'code' => 201
+                ]);
+            }
+
+            $param = $request->all();
+            $products = Rating::rating($param['product_id']);
+
+            return response()->json([
+
+                'status' => 'success',
+                'message' => 'Data Fetched',
+                'code' => 200,
+                'data' => $products
+            ]);
+            
+                            
+        }catch(QueryException  $ex){
+        
+            return response()->json([
+
+                    'status' => 'error',
+                    'message' => $ex->getMessage(),
+                    'code' => 503,
+            ]);
+        }
+
+    }
+
+    /**
+     * Categories
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function categories(Request $request)
     {
         
@@ -332,6 +423,16 @@ class ProductController extends Controller
             ]);
         }
     
+    }
+
+    public function user()
+    {
+        return Auth::guard()->user();
+    }
+
+    private function user_id()
+    {
+        return $this->user()->id;
     }
 
 }

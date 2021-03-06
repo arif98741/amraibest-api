@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Http\Request;
 
 Route::group([
@@ -9,40 +10,54 @@ Route::group([
 
 ], function ($router) {
 
-	//user management
-	Route::group([ 
-		'namespace' => 'User',
-		'prefix' => 'user'
-	],function(){
+    //user management
+    Route::group([
+        'namespace' => 'User',
+        'prefix' => 'user'
+    ], function () {
 
-	    Route::post('register','AuthController@register');
-	    Route::post('login', 'AuthController@login');
-	    Route::post('logout', 'AuthController@logout');
-	    Route::post('refresh', 'AuthController@refresh');
-	    Route::post('me', 'AuthController@me');
-	    Route::get('wishlist', 'UserController@wishlist');
-	});
+        Route::post('register', 'AuthController@register');
+        Route::post('login', 'AuthController@login');
+        Route::post('logout', 'AuthController@logout');
+        Route::post('refresh', 'AuthController@refresh');
+        Route::post('profile', 'AuthController@profile');
+        Route::post('update-profile', 'UserController@update_profile');
+        Route::post('wishlist', 'UserController@wishlist');
+        Route::post('wishlist/store', 'UserController@store');
+        Route::delete('wishlist/delete/{id}', 'UserController@delete');
+        Route::post('orders', 'OrderController@orders');
+        Route::post('order/single-order', 'OrderController@single_order');
+        Route::post('order/order-tracks', 'OrderController@order_tracks');
+
+    });
 
 
-	//Products
-	Route::group([ 
-		'namespace' => 'Product',
-		'prefix' => 'product'
-	],function(){
+    //Products
+    Route::group([
+        'namespace' => 'Product',
+        'prefix' => 'product'
+    ], function () {
 
-	    Route::get('/all','ProductController@products');
-	    Route::get('/categories','ProductController@categories');
-	    Route::get('/sub-categories','ProductController@sub_categories');
-	    Route::get('/view/single-product','ProductController@single_product');
-	});
+        Route::get('/all', 'ProductController@products');
+        Route::post('ratings', 'ProductController@ratings');
+        Route::post('rating', 'ProductController@rating');
+        Route::get('/categories', 'ProductController@categories');
+        Route::post('/sub-categories', 'ProductController@sub_categories');
+        Route::post('/view/single-product', 'ProductController@single_product');
+    });
 
-	//Blog
-	Route::group([ 
-		'namespace' => 'Blog',
-		'prefix' => 'blog'
-	],function(){
+    //Blog
+    Route::group([
+        'namespace' => 'Blog',
+        'prefix' => 'blog'
+    ], function () {
 
-	    Route::get('/all','BlogController@blogs');
-	});
-   
+        Route::get('/all', 'BlogController@blogs');
+        Route::get('/all/by-category', 'BlogController@blogsByCategory');
+        Route::get('/categories', 'BlogController@blogCategories');
+        Route::get('view/single-blog', 'BlogController@single_blog');
+        Route::post('store', 'BlogController@store');
+        Route::post('update', 'BlogController@blogs');
+    });
+
 });

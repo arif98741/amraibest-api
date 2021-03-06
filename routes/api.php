@@ -60,4 +60,15 @@ Route::group([
         Route::post('update', 'BlogController@blogs');
     });
 
+    //Blog
+    Route::group([
+        'namespace' => 'Extra',
+        'prefix' => 'other'
+    ], function () {
+        Route::get('/countries', 'OtherController@countries');
+        Route::get('/currencies', 'OtherController@currencies');
+        Route::get('/coupons', 'OtherController@coupons');
+    });
+
+
 });

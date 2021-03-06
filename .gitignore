@@ -21,3 +21,7 @@ yarn-error.log
 *.gif
 assets_old
 work
+*.jpg
+*.png
+*.jpeg
+*.gif

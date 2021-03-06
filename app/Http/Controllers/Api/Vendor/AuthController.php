@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\User;
+namespace App\Http\Controllers\Api\Vendor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -9,18 +9,16 @@ use App\Models\User;
 use Validator;
 
 use Auth;
-use function Faker\Provider\hy_AM\Address;
 
 class AuthController extends Controller
 {
 
-    /* Create a new AuthController instance.
-     *
-     * @return void
+    /**
+     * AuthController constructor.
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
     /**
@@ -33,7 +31,6 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('phone', 'password');
-
 
         if ($token = $this->guard()->attempt($credentials)) {
             return $this->respondWithToken($token);
@@ -53,8 +50,6 @@ class AuthController extends Controller
     }
 
     /**
-     * Log the user out (Invalidate the token)
-     *
      * @return JsonResponse
      */
     public function logout()
@@ -66,7 +61,6 @@ class AuthController extends Controller
 
     /**
      * Refresh a token.
-     *
      * @return JsonResponse
      */
     public function refresh()
@@ -76,9 +70,7 @@ class AuthController extends Controller
 
     /**
      * Get the token array structure.
-     *
-     * @param  string $token
-     *
+     * @param $token
      * @return JsonResponse
      */
     protected function respondWithToken($token)
@@ -92,8 +84,7 @@ class AuthController extends Controller
 
     /**
      * Get the guard to be used during authentication.
-     *
-     * @return \Illuminate\Contracts\Auth\Guard
+     * @return mixed
      */
     public function guard()
     {
@@ -102,53 +93,57 @@ class AuthController extends Controller
 
     /**
      * Register New User
+     * @param Request $request
+     * @return JsonResponse
      */
     public function register(Request $request)
     {
-    	 
-    	 try{
-    	 	$validator = Validator::make($request->all(),[
-                        'name' => 'required',
-                        'phone' => 'required|unique:users',
-                        'address' => 'required',
-                        'password' => 'required|min:6|max:20',
-                        'confirm_password' => 'required|min:3|max:20|same:password',
 
-                    ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'email' => 'required|unique:users',
+                'phone' => 'required|unique:users',
+                'address' => 'required',
+                'shop_name' => 'required',
+                'owner_name' => 'required',
+                'password' => 'required|min:6|max:20',
+                'confirm_password' => 'required|min:3|max:20|same:password',
 
-    	 	if ($validator->fails()) {
+            ]);
 
-    	 		return response()->json([
-    	 			'status' => 'error',
-    	 			'code' => 401,
-    	 			'message' => 'Registration failed due to error',
-    	 			'error' => $validator->errors()
-    	 		]);
-    	 	}else{
-    	 		$userData = $request->all();
-    	 		$userData['password'] = bcrypt($userData['password']);
-    	 		$data  = User::create($userData);
-    	 		return response()->json([
+            if ($validator->fails()) {
 
-    	 			'status' => 'success',
-    	 			'message' => 'Registration Successful',
-    	 			'code' => 200,
-    	 			'data' => $data
-    	 		]);
-    	 	}
-    
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 401,
+                    'message' => 'Registration failed due to error',
+                    'error' => $validator->errors()
+                ]);
+            } else {
+                $userData = $request->all();
+                $userData['password'] = bcrypt($userData['password']);
+                $data = User::create($userData);
+                return response()->json([
 
-    	 }catch(\Exception $e)
-    	 {
-    	 	return response()->json([
+                    'status' => 'success',
+                    'message' => 'Registration Successful',
+                    'code' => 200,
+                    'data' => $data
+                ]);
+            }
 
-    	 			'status' => 'error',
-    	 			'message' => 'error',
-    	 			'code' => 503,
-    	 	]);
-    	 }
+
+        } catch (\Exception $e) {
+            return response()->json([
+
+                'status' => 'error',
+                'message' => 'error',
+                'code' => 503,
+            ]);
+        }
 
     }
 
-    
+
 }

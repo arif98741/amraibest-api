@@ -31,6 +31,25 @@ Route::group([
 
     });
 
+    //vendor management
+    Route::group([
+        'namespace' => 'Vendor',
+        'prefix' => 'vendor'
+    ], function () {
+
+        Route::post('register', 'AuthController@register');
+        Route::post('login', 'AuthController@login');
+        Route::post('logout', 'AuthController@logout');
+        Route::post('refresh', 'AuthController@refresh');
+        Route::post('profile', 'AuthController@profile');
+        Route::post('update-profile', 'UserController@update_profile');
+        Route::get('orders', 'OrderController@orders');
+        Route::post('order/single-order', 'OrderController@single_order');
+        Route::post('order/change-status', 'OrderController@change_status');
+        //Route::post('order/order-tracks', 'OrderController@order_tracks');
+
+    });
+
 
     //Products
     Route::group([
@@ -42,7 +61,8 @@ Route::group([
         Route::post('ratings', 'ProductController@ratings');
         Route::post('rating', 'ProductController@rating');
         Route::get('/categories', 'ProductController@categories');
-        Route::post('/sub-categories', 'ProductController@sub_categories');
+        Route::get('/sub-categories', 'ProductController@sub_categories');
+        Route::get('/sub-category/child-categories', 'ProductController@child_categories');
         Route::post('/view/single-product', 'ProductController@single_product');
     });
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Product;
 
 use App\Http\Controllers\Controller;
+use App\Models\Childcategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Product;
@@ -10,9 +11,9 @@ use App\Models\Category;
 use App\Models\Subcategory;
 use App\Models\Rating;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Input;
 use Validator;
 use Exception;
-
 use Auth;
 
 class ProductController extends Controller
@@ -34,30 +35,25 @@ class ProductController extends Controller
     public function products(Request $request)
     {
 
-        try{
-        
-            if (!$request->has('order') ) {
+        try {
 
+            $rules = [
+                'order' => 'required',
+                'order_by' => 'required',
+            ];
+
+            $validator = Validator::make(Input::all(), $rules);
+
+            if ($validator->fails()) {
                 return response()->json([
-
                     'status' => 'error',
-                    'message' => 'order Parameter missing',
-                    'code' => 201
-                ]);
-            }
-
-            if (!$request->has('order_by') ) {
-
-                return response()->json([
-
-                    'status' => 'error',
-                    'message' => 'order_by Parameter missing',
-                    'code' => 201
+                    'message' => 'validation error',
+                    'error' => $validator->getMessageBag()->toArray(),
+                    'code' => 206
                 ]);
             }
 
             $param = $request->all();
-
             $order = $param['order'];
             $orderBy = $param['order_by'];
 
@@ -65,9 +61,9 @@ class ProductController extends Controller
 
                 $per_page = $param['per_page'];
                 $page = $param['page'];
-                $products = Product::with(['category','subcategory','galleries'])
-                ->orderBy($orderBy,$order)
-                ->paginate($per_page, ['*'], 'page', $page);
+                $products = Product::with(['category', 'subcategory', 'galleries'])
+                    ->orderBy($orderBy, $order)
+                    ->paginate($per_page, ['*'], 'page', $page);
 
                 return response()->json([
 
@@ -83,11 +79,11 @@ class ProductController extends Controller
                     ]
                 ]);
 
-            }else{
-                
-                $products = Product::with(['category','subcategory','galleries','user','ratings'])
-                ->orderBy($orderBy,$order)
-                ->get();
+            } else {
+
+                $products = Product::with(['category', 'subcategory', 'galleries', 'user', 'ratings'])
+                    ->orderBy($orderBy, $order)
+                    ->get();
 
                 return response()->json([
 
@@ -97,13 +93,13 @@ class ProductController extends Controller
                     'data' => $products
                 ]);
             }
-        }catch(QueryException  $ex){
-        
+        } catch (QueryException  $ex) {
+
             return response()->json([
 
-                    'status' => 'error',
-                    'message' => $ex->getMessage(),
-                    'code' => 503,
+                'status' => 'error',
+                'message' => $ex->getMessage(),
+                'code' => 503,
             ]);
         }
 
@@ -117,22 +113,26 @@ class ProductController extends Controller
     public function single_product(Request $request)
     {
 
-        try{
-            if (!$request->has('product_id') ) {
+        try {
+            $rules = [
+                'product_id' => 'required',
+            ];
 
+            $validator = Validator::make(Input::all(), $rules);
+            if ($validator->fails()) {
                 return response()->json([
-
                     'status' => 'error',
-                    'message' => 'product_id Parameter missing',
-                    'code' => 201
+                    'message' => 'validation error',
+                    'error' => $validator->getMessageBag()->toArray(),
+                    'code' => 206
                 ]);
             }
 
             $param = $request->all();
 
-            try{
-                $products = Product::with(['category','subcategory','galleries','user','ratings'])
-                ->findOrFail($param['product_id']);
+            try {
+                $products = Product::with(['category', 'subcategory', 'galleries', 'user', 'ratings'])
+                    ->findOrFail($param['product_id']);
 
                 return response()->json([
 
@@ -141,8 +141,7 @@ class ProductController extends Controller
                     'code' => 200,
                     'data' => $products
                 ]);
-            }catch(Exception $e)
-            {
+            } catch (Exception $e) {
                 return response()->json([
 
                     'status' => 'error',
@@ -150,14 +149,14 @@ class ProductController extends Controller
                     'code' => 405,
                 ]);
             }
-                            
-        }catch(QueryException  $ex){
-        
+
+        } catch (QueryException  $ex) {
+
             return response()->json([
 
-                    'status' => 'error',
-                    'message' => $ex->getMessage(),
-                    'code' => 503,
+                'status' => 'error',
+                'message' => $ex->getMessage(),
+                'code' => 503,
             ]);
         }
 
@@ -165,21 +164,26 @@ class ProductController extends Controller
 
     /**
      * Average Ratings of Single Product
-    * 100% calculation
+     * 100% calculation
      * @param Request $request
      * @return JsonResponse
      */
     public function ratings(Request $request)
     {
 
-        try{
-            if (!$request->has('product_id') ) {
+        try {
+            $rules = [
+                'order' => 'product_id',
+            ];
 
+            $validator = Validator::make(Input::all(), $rules);
+
+            if ($validator->fails()) {
                 return response()->json([
-
                     'status' => 'error',
-                    'message' => 'product_id Parameter missing',
-                    'code' => 201
+                    'message' => 'validation error',
+                    'error' => $validator->getMessageBag()->toArray(),
+                    'code' => 206
                 ]);
             }
 
@@ -193,15 +197,15 @@ class ProductController extends Controller
                 'code' => 200,
                 'data' => $products
             ]);
-            
-                            
-        }catch(QueryException  $ex){
-        
+
+
+        } catch (QueryException  $ex) {
+
             return response()->json([
 
-                    'status' => 'error',
-                    'message' => $ex->getMessage(),
-                    'code' => 503,
+                'status' => 'error',
+                'message' => $ex->getMessage(),
+                'code' => 503,
             ]);
         }
 
@@ -215,14 +219,19 @@ class ProductController extends Controller
     public function rating(Request $request)
     {
 
-        try{
-            if (!$request->has('product_id') ) {
+        try {
+            $rules = [
+                'product_id' => 'required',
+            ];
 
+            $validator = Validator::make(Input::all(), $rules);
+
+            if ($validator->fails()) {
                 return response()->json([
-
                     'status' => 'error',
-                    'message' => 'product_id Parameter missing',
-                    'code' => 201
+                    'message' => 'validation error',
+                    'error' => $validator->getMessageBag()->toArray(),
+                    'code' => 206
                 ]);
             }
 
@@ -236,15 +245,15 @@ class ProductController extends Controller
                 'code' => 200,
                 'data' => $products
             ]);
-            
-                            
-        }catch(QueryException  $ex){
-        
+
+
+        } catch (QueryException  $ex) {
+
             return response()->json([
 
-                    'status' => 'error',
-                    'message' => $ex->getMessage(),
-                    'code' => 503,
+                'status' => 'error',
+                'message' => $ex->getMessage(),
+                'code' => 503,
             ]);
         }
 
@@ -257,40 +266,34 @@ class ProductController extends Controller
      */
     public function categories(Request $request)
     {
-        
-        try{
+
+        try {
+            $rules = [
+                'order' => 'required',
+                'order_by' => 'required',
+            ];
+
+            $validator = Validator::make(Input::all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'validation error',
+                    'error' => $validator->getMessageBag()->toArray(),
+                    'code' => 206
+                ]);
+            }
             $param = $request->all();
-            
-            if (!$request->has('order') ) {
-
-                return response()->json([
-
-                    'status' => 'error',
-                    'message' => 'Order Parameter missing',
-                    'code' => 201
-                ]);
-            }
-
-            if (!$request->has('order_by') ) {
-
-                return response()->json([
-
-                    'status' => 'error',
-                    'message' => 'Orderby Parameter missing',
-                    'code' => 201
-                ]);
-            }
-
 
             $order = $param['order'];
             $orderBy = $param['order_by'];
 
             if ($request->has('per_page') && $request->has('page')) {
-                
+
                 $per_page = $param['per_page'];
                 $page = $param['page'];
-                $categories = Category::orderBy($orderBy,$order)
-                ->paginate($per_page, ['*'], 'page', $page);
+                $categories = Category::orderBy($orderBy, $order)
+                    ->paginate($per_page, [' * '], 'page', $page);
 
                 return response()->json([
 
@@ -306,10 +309,10 @@ class ProductController extends Controller
                     ]
                 ]);
 
-            }else{
-                
-                $categories = Category::orderBy($orderBy,$order)
-                ->get();
+            } else {
+
+                $categories = Category::orderBy($orderBy, $order)
+                    ->get();
 
                 return response()->json([
 
@@ -319,29 +322,29 @@ class ProductController extends Controller
                     'data' => $categories
                 ]);
             }
-        }catch(QueryException  $ex){
-        
+        } catch (QueryException  $ex) {
+
             return response()->json([
 
-                    'status' => 'error',
-                    'message' => $ex->getMessage(),
-                    'code' => 503,
+                'status' => 'error',
+                'message' => $ex->getMessage(),
+                'code' => 503,
             ]);
         }
-    
+
     }
 
 
     /**
-    Sub Categories
-    */
+     * Sub Categories
+     */
     public function sub_categories(Request $request)
     {
-        
-        try{
+
+        try {
             $param = $request->all();
-            
-            if (!$request->has('category_id') ) {
+
+            if (!$request->has('category_id')) {
 
                 return response()->json([
 
@@ -351,7 +354,7 @@ class ProductController extends Controller
                 ]);
             }
 
-            if (!$request->has('order') ) {
+            if (!$request->has('order')) {
 
                 return response()->json([
 
@@ -361,7 +364,7 @@ class ProductController extends Controller
                 ]);
             }
 
-            if (!$request->has('order_by') ) {
+            if (!$request->has('order_by')) {
 
                 return response()->json([
 
@@ -381,9 +384,9 @@ class ProductController extends Controller
                 $per_page = $param['per_page'];
                 $page = $param['page'];
                 $sub_categories = Subcategory::with(['category'])
-                ->where( ['category_id' => $category_id])
-                ->orderBy($orderBy,$order)
-                ->paginate($per_page, ['*'], 'page', $page);
+                    ->where(['category_id' => $category_id])
+                    ->orderBy($orderBy, $order)
+                    ->paginate($per_page, [' * '], 'page', $page);
 
                 return response()->json([
 
@@ -399,11 +402,11 @@ class ProductController extends Controller
                     ]
                 ]);
 
-            }else{
-                
+            } else {
+
                 $sub_categories = Subcategory::with(['category'])
-                ->orderBy($orderBy,$order)
-                ->get();
+                    ->orderBy($orderBy, $order)
+                    ->get();
 
                 return response()->json([
 
@@ -413,16 +416,69 @@ class ProductController extends Controller
                     'data' => $sub_categories
                 ]);
             }
-        }catch(QueryException  $ex){
-        
+        } catch (QueryException  $ex) {
+
             return response()->json([
 
-                    'status' => 'error',
-                    'message' => $ex->getMessage(),
-                    'code' => 503,
+                'status' => 'error',
+                'message' => $ex->getMessage(),
+                'code' => 503,
             ]);
         }
-    
+
+    }
+
+    /**
+     * Child Categories
+     */
+    public function child_categories(Request $request)
+    {
+
+        try {
+            $rules = [
+                'subcategory_id' => 'required',
+                'order' => 'required',
+                'order_by' => 'required',
+            ];
+
+            $validator = Validator::make(Input::all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'validation error',
+                    'error' => $validator->getMessageBag()->toArray(),
+                    'code' => 206
+                ]);
+            }
+            $param = $request->all();
+            $order = $param['order'];
+            $orderBy = $param['order_by'];
+            $subcategory_id = $param['subcategory_id'];
+
+            $child_categories = Childcategory::where(['subcategory_id' => $subcategory_id])
+                ->orderBy($orderBy, $order)
+                ->get();
+
+            return response()->json([
+
+                'status' => 'success',
+                'message' => 'Data Fetched',
+                'code' => 200,
+                'data' => $child_categories
+            ]);
+
+
+        } catch (QueryException  $e) {
+
+            return response()->json([
+
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'code' => 503,
+            ]);
+        }
+
     }
 
     public function user()

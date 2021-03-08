@@ -68,7 +68,7 @@ class UserController extends Controller
 
 
             } catch (Exception $e) {
-                dd($e->getMessage());
+
                 return response()->json([
 
                     'status' => 'error',

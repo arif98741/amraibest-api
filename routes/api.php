@@ -46,6 +46,14 @@ Route::group([
         Route::get('orders', 'OrderController@orders');
         Route::post('order/single-order', 'OrderController@single_order');
         Route::post('order/change-status', 'OrderController@change_status');
+        Route::get('products', 'ProductController@datatables');
+        Route::get('product/single-product', 'ProductController@single_product');
+        Route::get('product/catelogs', 'ProductController@catalogdatatables');
+        Route::post('product/delete', 'ProductController@destroy');
+        Route::post('product/galleries', 'GalleryController@show_gallery_images');
+        Route::post('product/galleries/store', 'GalleryController@store');
+        Route::post('product/galleries/delete', 'GalleryController@destroy');
+        Route::post('product/packages', 'PackageController@destroy');
         //Route::post('order/order-tracks', 'OrderController@order_tracks');
 
     });

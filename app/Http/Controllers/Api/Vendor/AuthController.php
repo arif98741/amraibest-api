@@ -105,7 +105,7 @@ class AuthController extends Controller
                 'email' => 'required|unique:users',
                 'phone' => 'required|unique:users',
                 'address' => 'required',
-                'shop_name' => 'required',
+                'shop_name' => 'required|unique:users',
                 'owner_name' => 'required',
                 'password' => 'required|min:6|max:20',
                 'confirm_password' => 'required|min:3|max:20|same:password',

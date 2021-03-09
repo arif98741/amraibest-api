@@ -27,70 +27,74 @@ class PackageController extends Controller
      */
     public function packageList()
     {
-        $packages = Package::where('user_id', Auth::user()->id)->get();
-        $x = [
-            'five' => $id,
-            'six' => $json
-        ];
 
+        $packages = Package::where('user_id', Auth::user()->id)->get();
+        if ($packages->count() == 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'no data found',
+                'code' => 405,
+            ]);
+        }
         return response()->json([
             'status' => 'success',
             'message' => 'data fetched',
+            'code' => 200,
             'data' => $packages,
-            'code' => 206,
         ]);
 
     }
 
-    //*** GET Request
-    public function index()
-    {
-        return view('vendor.package.index');
-    }
-
-    //*** GET Request
-    public function create()
-    {
-        $sign = Currency::where('is_default', '=', 1)->first();
-        return view('vendor.package.create', compact('sign'));
-    }
-
-    //*** POST Request
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
-        //--- Validation Section
-        $rules = ['title' => 'unique:packages'];
-        $customs = ['title.unique' => 'This title has already been taken.'];
-        $validator = Validator::make(Input::all(), $rules, $customs);
-        if ($validator->fails()) {
-            return response()->json(array('errors' => $validator->getMessageBag()->toArray()));
-        }
-        //--- Validation Section Ends
+        $rules = [
+            'title' => 'required|unique:packages',
+            'subtitle' => 'required',
+            'price' => 'required',
+        ];
+        $validator = Validator::make(Input::all(), $rules);
 
-        //--- Logic Section
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'validation error',
+                'error' => $validator->getMessageBag()->toArray(),
+                'code' => 206
+            ]);
+        }
+
         $sign = Currency::where('is_default', '=', 1)->first();
         $data = new Package();
         $input = $request->all();
         $input['user_id'] = Auth::user()->id;
         $input['price'] = ($input['price'] / $sign->value);
-        $data->fill($input)->save();
-        //--- Logic Section Ends
 
-        //--- Redirect Section        
-        $msg = 'New Data Added Successfully.';
-        return response()->json($msg);
-        //--- Redirect Section Ends    
+        if ($data->fill($input)->save()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'successfully saved',
+                'error' => $validator->getMessageBag()->toArray(),
+                'code' => 200
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'save failed',
+                'code' => 200
+            ]);
+        }
+
     }
 
-    //*** GET Request
-    public function edit($id)
-    {
-        $sign = Currency::where('is_default', '=', 1)->first();
-        $data = Package::findOrFail($id);
-        return view('vendor.package.edit', compact('data', 'sign'));
-    }
-
-    //*** POST Request
+    /**
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse|string
+     */
     public function update(Request $request, $id)
     {
         //--- Validation Section
@@ -99,11 +103,15 @@ class PackageController extends Controller
         $validator = Validator::make(Input::all(), $rules, $customs);
 
         if ($validator->fails()) {
-            return response()->json(array('errors' => $validator->getMessageBag()->toArray()));
+            return response()->json([
+                'status' => 'error',
+                'message' => 'validation error',
+                'error' => $validator->getMessageBag()->toArray(),
+                'code' => 206
+            ]);
         }
-        //--- Validation Section Ends
+        return 'hi';
 
-        //--- Logic Section
         $sign = Currency::where('is_default', '=', 1)->first();
         $data = Package::findOrFail($id);
         $input = $request->all();

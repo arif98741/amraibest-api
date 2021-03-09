@@ -53,7 +53,9 @@ Route::group([
         Route::post('product/galleries', 'GalleryController@show_gallery_images');
         Route::post('product/galleries/store', 'GalleryController@store');
         Route::post('product/galleries/delete', 'GalleryController@destroy');
-        Route::post('product/packages', 'PackageController@destroy');
+        Route::get('packages', 'PackageController@packageList');
+        Route::post('package/store', 'PackageController@store');
+        Route::post('package/update', 'PackageController@update');
         //Route::post('order/order-tracks', 'OrderController@order_tracks');
 
     });
